@@ -6,28 +6,16 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>员工列表</title>
-    <%
-        pageContext.setAttribute ("APP_PATH", request.getContextPath ());
-    %>
-    <%--   <script src="http://how2j.cn/study/js/jquery/2.0.0/jquery.min.js"></script>
+    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
-       <link href="WEB-INF/static/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
-       <script src="http://how2j.cn/study/js/bootstrap/3.3.6/bootstrap.min.js"></script>--%>
-    <script type="text/javascript"
-            src="WEB-INF/static/js/jquery-1.12.4.min.js"></script>
-    <link
-            href="./bootstrap/css/bootstrap.min.css"
-            rel="stylesheet">
-    <script
-            src="WEB-INF/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
-</head>
+    <script type="text/javascript" src="static/js/jquery-1.12.4.min.js"></script>
+
+    <script type="text/javascript" src="static/bootstrap/js/bootstrap.min.js"></script>
+ </head>
 <body>
 
-<button class="btn btn-success">按11</button>
+<button class="btn btn-success">按钮</button>
 
-<button>按钮</button>
-
-<button type="button" class="btn btn-success">成功按钮</button>
 
 </body>
 </html>
