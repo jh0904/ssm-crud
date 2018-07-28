@@ -13,7 +13,7 @@
 
     <plugins>
         <plugin interceptor="com.github.pagehelper.PageInterceptor">
-            <!--分页参数合理化  -->
+            <!--分页参数合理化  参数小于1时，只显示第一页。参数大于总页数时，最大显示最大页。-->
             <property name="reasonable" value="true"/>
         </plugin>
     </plugins>
