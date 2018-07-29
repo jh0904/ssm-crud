@@ -1,6 +1,7 @@
 package com.crud.service;
 
 import com.crud.bean.Employee;
+import com.crud.bean.EmployeeExample;
 import com.crud.dao.EmployeeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,5 +22,17 @@ public class EmployeeService {
 
     public List<Employee> getAll() {
         return employeeMapper.selectByExampleWithDept (null);
+    }
+
+    public void saveEmpp(Employee employee) {
+        employeeMapper.insertSelective (employee);
+    }
+
+    public boolean checkUser(String empName) {
+        EmployeeExample example = new EmployeeExample ();
+        EmployeeExample.Criteria criteria = example.createCriteria ();
+        criteria.andEmpNameEqualTo (empName);
+        long l = employeeMapper.countByExample (example);
+        return l==0;
     }
 }

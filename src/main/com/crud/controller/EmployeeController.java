@@ -7,10 +7,15 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -24,7 +29,44 @@ import java.util.List;
 public class EmployeeController {
     @Autowired
     EmployeeService employeeService;
-@RequestMapping("/emps")
+
+    @ResponseBody
+    @RequestMapping("/checkuser")
+    public Msg checkuser(@RequestParam("empName") String empName) {
+        //判断用户名是否合法
+        String regx = "(^[a-zA-Z0-9_-]{6,16}$)|(^[\\u2E80-\\u9FFF]{2,5})";
+        if (!empName.matches (regx)) {
+            return Msg.fail ().add ("va_msg", "用户名必须是2-5位中文或是6-16位英文的组合");
+        }
+        //数据库用户名匹配校验
+        boolean b = employeeService.checkUser (empName);
+        if (b) {
+            return Msg.success ();
+        } else {
+            return Msg.fail ().add("va_msg","用户名已被注册");
+        }
+    }
+
+    @RequestMapping(value = "/emps", method = RequestMethod.POST)
+    @ResponseBody
+    public Msg saveEmp(@Valid Employee employee, BindingResult result) {
+        if(result.hasErrors ()){
+            //校验失败，在模态框中显示校验失败的信息。
+            List<FieldError> errors = result.getFieldErrors ();
+            HashMap<String, Object> map = new HashMap<> ();
+            for (FieldError error : errors) {
+                System.out.println ("错误的字段名"+error.getField ());
+                System.out.println ("错误信息"+error.getDefaultMessage ());
+                map.put (error.getField (),error.getDefaultMessage ());
+            }
+            return Msg.fail ().add ("errorFields",map);
+        }else {
+            employeeService.saveEmpp (employee);
+            return Msg.success ();
+        }
+    }
+
+    @RequestMapping(value = "/emps")
     @ResponseBody
     public Msg getEmpWitnJson(@RequestParam(value = "pn", defaultValue = "1") Integer pn) {
         PageHelper.startPage (pn, 5);
@@ -32,7 +74,7 @@ public class EmployeeController {
         List<Employee> emps = employeeService.getAll ();
 
         PageInfo page = new PageInfo (emps, 5);
-        return Msg.success ().add("pageInfo",page);
+        return Msg.success ().add ("pageInfo", page);
     }
 
     //@RequestMapping("/emps")
