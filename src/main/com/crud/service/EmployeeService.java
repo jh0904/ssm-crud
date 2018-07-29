@@ -33,6 +33,16 @@ public class EmployeeService {
         EmployeeExample.Criteria criteria = example.createCriteria ();
         criteria.andEmpNameEqualTo (empName);
         long l = employeeMapper.countByExample (example);
-        return l==0;
+        return l == 0;
+    }
+
+    //按照员工信息，查询员工
+    public Employee getEmp(Integer id) {
+        Employee employee = employeeMapper.selectByPrimaryKey (id);
+        return employee;
+    }
+
+    public void updateEmp(Employee employee) {
+        employeeMapper.updateByPrimaryKeySelective (employee);
     }
 }

@@ -36,15 +36,15 @@
             <div class="modal-body">
                 <form class="form-horizontal">
                     <div class="form-group">
-                        <label for="empName_add_input" class="col-sm-2 control-label">姓名</label>
+                        <label for="empName_update_input" class="col-sm-2 control-label">姓名</label>
                         <div class="col-sm-10">
-                            <input type="text" name="empName" class="form-control" id="empName_add_input"
+                            <input type="text" name="empName" class="form-control" id="empName_update_input"
                                    placeholder="请输入员工姓名">
                             <span class="help-block"></span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="email_add_input" class="col-sm-2 control-label">邮箱</label>
+                        <label for="email_update_input" class="col-sm-2 control-label">邮箱</label>
                         <div class="col-sm-10">
                             <input type="text" name="email" class="form-control" id="email_add_input"
                                    placeholder="请输入邮箱">
@@ -95,11 +95,9 @@
             <div class="modal-body">
                 <form class="form-horizontal">
                     <div class="form-group">
-                        <label for="empName_add_input" class="col-sm-2 control-label">姓名</label>
+                        <label class="col-sm-2 control-label">姓名</label>
                         <div class="col-sm-10">
-                            <input type="text" name="empName" class="form-control" id="empName_update_input"
-                                   placeholder="请输入员工姓名">
-                            <span class="help-block"></span>
+                            <p class="form-control-static" id="empName_update_static"></p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -192,7 +190,7 @@
 
 </div>
 <script type="text/javascript">
-    var totalRecord =
+    var totalRecord,currentPage;
 
         $(function () {
             //去首页
@@ -230,6 +228,8 @@
             var deptNameTd = $("<td></td>").append(item.department.deptName);
             var editBtn = $("<button></button>").addClass("btn btn-primary btn-sm edit_btn")
                 .append($("<span></span>").addClass("glyphicon glyphicon-pencil")).append("编辑");
+            //为编辑添加自定义属性
+            editBtn.attr("edit-id", item.empId);
             var delBtn = $("<button></button>").addClass("btn btn-danger btn-sm delete_btn")
                 .append($("<span></span>").addClass("glyphicon glyphicon-trash")).append("删除");
 
@@ -250,6 +250,7 @@
         $("#page_info_area").empty();
         $("#page_info_area").append(result.extend.pageInfo.pageNum + "/" + result.extend.pageInfo.pages + "         共" + result.extend.pageInfo.total + "条记录")
         totalRecord = result.extend.pageInfo.total;
+        currentPage = result.extend.pageInfo.pageNum;
     }
 
     //解析显示分页条信息
@@ -454,15 +455,57 @@
     //创建按钮的时候绑定时间/或者.live方法去绑定。（新版没有live方法）使用on方法进行替代。
     $(document).on("click", ".edit_btn", function () {
         //alert("edit");
-        //查出员工信息，显示员工信息
         //查出部门信息，显示部门列表
         getDepts("#empUpdateModal select");
+        //查出员工信息，显示员工信息
+        getEmp($(this).attr("edit-id"));
+        //传递员工id给模态框更新按钮
+        $("#emp_update_btn").attr("edit-id", $(this).attr("edit-id"));
 
         $("#empUpdateModal").modal({
             backdrop: "static"
         });
     });
 
+    function getEmp(id) {
+        $.ajax({
+            url: "${APP_PATH}/emp/" + id,
+            type: "GET",
+            success: function (result) {
+                //console.log(result);
+                var empData = result.extend.emp;
+                $("#empName_update_static").text(empData.empName);
+                $("#email_update_input").val(empData.email);
+                $("#empUpdateModal input[name=gender]").val([empData.gender]);
+                $("#empUpdateModal select").val([empData.dId]);
+            }
+        });
+    }
+
+    $("#emp_update_btn").click(function () {
+
+        //校验邮箱
+        var email = $("#email_update_input").val();
+        var regEmail = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+        if (!regEmail.test(email)) {
+            show_validate_msg("#email_update_input", "error", "邮箱格式有误！请重新输入。");
+            return false;
+        } else {
+            show_validate_msg("#email_update_input", "success", "");
+        }
+
+        //发送ajax请求，保存用户更改信息
+        $.ajax({
+            url: "${APP_PATH}/emp/" + $(this).attr("edit-id"),
+            type: "PUT",
+            data:$("#empUpdateModal form").serialize(),
+            success:function (result) {
+                $("#empUpdateModal").modal("hide");
+                //2、回到本页面
+                to_page(currentPage);
+            }
+        });
+    });
 
 </script>
 </body>

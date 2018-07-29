@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -30,6 +27,28 @@ public class EmployeeController {
     @Autowired
     EmployeeService employeeService;
 
+    /**
+     * 保存员工
+     */
+    @ResponseBody
+    @RequestMapping(value = "/emp/{empId}", method = RequestMethod.PUT)
+    public Msg saveEmp(Employee employee) {
+        System.out.println ("将要更新的员工数据"+employee);
+        employeeService.updateEmp(employee);
+        return Msg.success ();
+    }
+
+    /**
+     * 根据id查询员工
+     */
+    @ResponseBody
+    @RequestMapping(value = "/emp/{id}", method = RequestMethod.GET)
+    public Msg getEmp(@PathVariable("id") Integer id) {
+
+        Employee employee = employeeService.getEmp (id);
+        return Msg.success ().add ("emp", employee);
+    }
+
     @ResponseBody
     @RequestMapping("/checkuser")
     public Msg checkuser(@RequestParam("empName") String empName) {
@@ -43,24 +62,24 @@ public class EmployeeController {
         if (b) {
             return Msg.success ();
         } else {
-            return Msg.fail ().add("va_msg","用户名已被注册");
+            return Msg.fail ().add ("va_msg", "用户名已被注册");
         }
     }
 
     @RequestMapping(value = "/emps", method = RequestMethod.POST)
     @ResponseBody
     public Msg saveEmp(@Valid Employee employee, BindingResult result) {
-        if(result.hasErrors ()){
+        if (result.hasErrors ()) {
             //校验失败，在模态框中显示校验失败的信息。
             List<FieldError> errors = result.getFieldErrors ();
             HashMap<String, Object> map = new HashMap<> ();
             for (FieldError error : errors) {
-                System.out.println ("错误的字段名"+error.getField ());
-                System.out.println ("错误信息"+error.getDefaultMessage ());
-                map.put (error.getField (),error.getDefaultMessage ());
+                System.out.println ("错误的字段名" + error.getField ());
+                System.out.println ("错误信息" + error.getDefaultMessage ());
+                map.put (error.getField (), error.getDefaultMessage ());
             }
-            return Msg.fail ().add ("errorFields",map);
-        }else {
+            return Msg.fail ().add ("errorFields", map);
+        } else {
             employeeService.saveEmpp (employee);
             return Msg.success ();
         }
