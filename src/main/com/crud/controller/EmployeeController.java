@@ -12,6 +12,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,13 +29,39 @@ public class EmployeeController {
     EmployeeService employeeService;
 
     /**
+     * 单个删除方法二合一
+     * 批量删除：1-2-3
+     * 单个删除：1
+     */
+    @ResponseBody
+    @RequestMapping(value = "/emp/{ids}", method = RequestMethod.DELETE)
+    public Msg deleteEmpById(@PathVariable("ids") String ids) {
+        //区分批量删除和单个删除
+        if (ids.contains ("-")) {
+            String[] split = ids.split ("-");
+            //组装ids集合
+            List<Integer> list = new ArrayList<> ();
+            for (String s : split) {
+                list.add(Integer.parseInt (s));
+            }
+            employeeService.deleteBatch (list);
+
+        } else {
+            int i = Integer.parseInt (ids);
+            employeeService.deleteEmp (i);
+
+        }
+        return Msg.success ();
+    }
+
+    /**
      * 保存员工
      */
     @ResponseBody
     @RequestMapping(value = "/emp/{empId}", method = RequestMethod.PUT)
     public Msg saveEmp(Employee employee) {
-        System.out.println ("将要更新的员工数据"+employee);
-        employeeService.updateEmp(employee);
+        System.out.println ("将要更新的员工数据" + employee);
+        employeeService.updateEmp (employee);
         return Msg.success ();
     }
 

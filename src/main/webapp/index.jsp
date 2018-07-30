@@ -153,7 +153,7 @@
     <div class="row">
         <div class="col-md-4 col-md-offset-8">
             <button class="btn btn-primary" id="emp_add_modal_btn">新增</button>
-            <button class="btn btn-danger">删除</button>
+            <button class="btn btn-danger" id="emp_delete_all_btn">删除</button>
         </div>
 
     </div>
@@ -163,6 +163,7 @@
             <table class="table table-bordered table-hover" id="emps_table">
                 <thead>
                 <tr>
+                    <th><input type="checkbox" id="check_all"></th>
                     <th>id</th>
                     <th>empName</th>
                     <th>gender</th>
@@ -190,12 +191,12 @@
 
 </div>
 <script type="text/javascript">
-    var totalRecord,currentPage;
+    var totalRecord, currentPage;
 
-        $(function () {
-            //去首页
-            to_page(1);
-        });
+    $(function () {
+        //去首页
+        to_page(1);
+    });
 
     function to_page(pn) {
         $.ajax({
@@ -221,6 +222,7 @@
         var emps = result.extend.pageInfo.list;
         $.each(emps, function (index, item) {
             //alert(item.empName);
+            var checkBoxId = $("<td><input type='checkbox' class='check_item'/></td>");
             var empIdTd = $("<td></td>").append(item.empId);
             var empNameTd = $("<td></td>").append(item.empName);
             var genderTd = $("<td></td>").append(item.gender == 'M' ? "男" : "女");
@@ -232,10 +234,12 @@
             editBtn.attr("edit-id", item.empId);
             var delBtn = $("<button></button>").addClass("btn btn-danger btn-sm delete_btn")
                 .append($("<span></span>").addClass("glyphicon glyphicon-trash")).append("删除");
+            delBtn.attr("del-id", item.empId);
 
             var btnTd = $("<td></td>").append(editBtn).append("   ").append(delBtn);
             //append方法执行完成后还是返回原来的元素
-            $("<tr></tr>").append(empIdTd)
+            $("<tr></tr>").append(checkBoxId)
+                .append(empIdTd)
                 .append(empNameTd)
                 .append(genderTd)
                 .append(emailTd)
@@ -450,7 +454,6 @@
             }
         });
     });
-
     /*修改*/
     //创建按钮的时候绑定时间/或者.live方法去绑定。（新版没有live方法）使用on方法进行替代。
     $(document).on("click", ".edit_btn", function () {
@@ -498,8 +501,8 @@
         $.ajax({
             url: "${APP_PATH}/emp/" + $(this).attr("edit-id"),
             type: "PUT",
-            data:$("#empUpdateModal form").serialize(),
-            success:function (result) {
+            data: $("#empUpdateModal form").serialize(),
+            success: function (result) {
                 $("#empUpdateModal").modal("hide");
                 //2、回到本页面
                 to_page(currentPage);
@@ -507,6 +510,61 @@
         });
     });
 
+    // 单个删除
+    $(document).on("click", ".delete_btn", function () {
+        //1.首先弹出确认删除对话框
+        var empName = $(this).parents("tr").find("td:eq(2)").text();
+        var empId = $(this).attr("del-id");
+        //alert($(this).parents("tr").find("td:eq(0)").text());
+        if (confirm("确认删除【" + empName + "】吗？")) {
+            $.ajax({
+                url: "${APP_PATH}/emp/" + empId,
+                type: "DELETE",
+                success: function (result) {
+                    alert(result.msg);
+                    to_page(currentPage);
+                }
+            });
+        }
+    });
+
+    $("#check_all").click(function () {
+        //attr获取check是underfined，这些dom原生的属性，推荐用prop.
+        //$(this).prop("checked");
+        $(".check_item").prop("checked", $(this).prop("checked"));
+    });
+
+    $(document).on("click", ".check_item", function () {
+        //判读选中的元素是否五个
+        var flag = $(".check_item:checked").length == $(".check_item").length;
+        $("#check_all").prop("checked", flag);
+    });
+
+    //点击全部删除，批量删除
+    $("#emp_delete_all_btn").click(function () {
+        var empNames = "";
+        var del_idstr = "";
+        $.each($(".check_item:checked"), function () {
+            //this
+            //alert($(this).parents("tr").find("td:eq(2)").text());
+            empNames += $(this).parents("tr").find("td:eq(2)").text() + ",";
+            //id字符串
+            del_idstr += $(this).parents("tr").find("td:eq(1)").text() + "-";
+        });
+        //去除empNames多余的逗号。
+        empNames = empNames.substring(0, empNames.length - 1);
+        del_idstr = del_idstr.substring(0, empNames.length - 1);
+        if (confirm("确认删除【" + empNames + "】吗？")) {
+            $.ajax({
+                url: "${APP_PATH}/emp/" + del_idstr,
+                type: "DELETE",
+                success: function (result) {
+                    alert(result.msg);
+                    to_page(currentPage);
+                }
+            });
+        }
+    });
 </script>
 </body>
 </html>
