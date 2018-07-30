@@ -36,15 +36,15 @@
             <div class="modal-body">
                 <form class="form-horizontal">
                     <div class="form-group">
-                        <label for="empName_update_input" class="col-sm-2 control-label">姓名</label>
+                        <label for="empName_add_input" class="col-sm-2 control-label">姓名</label>
                         <div class="col-sm-10">
-                            <input type="text" name="empName" class="form-control" id="empName_update_input"
+                            <input type="text" name="empName" class="form-control" id="empName_add_input"
                                    placeholder="请输入员工姓名">
                             <span class="help-block"></span>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="email_update_input" class="col-sm-2 control-label">邮箱</label>
+                        <label for="email_add_input" class="col-sm-2 control-label">邮箱</label>
                         <div class="col-sm-10">
                             <input type="text" name="email" class="form-control" id="email_add_input"
                                    placeholder="请输入邮箱">
@@ -101,7 +101,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="email_add_input" class="col-sm-2 control-label">邮箱</label>
+                        <label for="email_update_input" class="col-sm-2 control-label">邮箱</label>
                         <div class="col-sm-10">
                             <input type="text" name="email" class="form-control" id="email_update_input"
                                    placeholder="请输入邮箱">
@@ -354,8 +354,6 @@
         var empName = $("#empName_add_input").val();
         var regName = /(^[a-zA-Z0-9_-]{6,16}$)|(^[\u2E80-\u9FFF]{2,5})/;
         if (!regName.test(empName)) {
-            //alert("用户名必须是2-5位中文或是6-16位英文");
-
             show_validate_msg("#empName_add_input", "error", "用户名必须是2-5位中文或是6-16位英文");
             return false;
         } else {
@@ -368,16 +366,10 @@
         var email = $("#email_add_input").val();
         var regEmail = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
         if (!regEmail.test(email)) {
-            //alert("邮箱输入有误！请重新输入。");
-            //清空之前的元素
             show_validate_msg("#email_add_input", "error", "邮箱格式有误！请重新输入。");
-            /*$("#email_add_input").parent().addClass("has-error");
-            $("#email_add_input").next("span").text("邮箱格式有误！请重新输入。");*/
             return false;
         } else {
             show_validate_msg("#email_add_input", "success", "")
-            /*$("#email_add_input").parent().addClass("has-success");
-            $("#email_add_input").next("span").text("");*/
         }
         return true;
     }
